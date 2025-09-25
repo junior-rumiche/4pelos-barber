@@ -2,10 +2,14 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -15,14 +19,21 @@ class UsersTable
     {
         return $table
             ->columns([
+                ImageColumn::make('profile_photo')
+                    ->label('Foto de perfil')
+                    ->getStateUsing(fn($record) => $record->profile_photo_url)
+                    ->circular(),
                 TextColumn::make('name')
                     ->label('Nombre')
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label('Correo electrónico')
+                    ->label('Correo')
                     ->searchable(),
+                IconColumn::make('is_active')
+                    ->label('Activo')
+                    ->boolean(),
                 TextColumn::make('email_verified_at')
-                    ->label('Correo verificado en')
+                    ->label('Verificado en')
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('created_at')
@@ -35,19 +46,43 @@ class UsersTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('two_factor_confirmed_at')
-                    ->label('Autenticación de dos factores confirmada en')
-                    ->dateTime()
-                    ->sortable(),
             ])
             ->filters([
                 //
             ])
             ->recordActions([
-                EditAction::make()->modal(),
+                ActionGroup::make([
+                    ViewAction::make()
+                        ->label('Ver')
+                        ->icon('heroicon-o-eye')
+                        ->modal(),
+                    EditAction::make()
+                        ->label('Editar')
+                        ->icon('heroicon-o-pencil')
+                        ->modal(),
+                    Action::make('toggle_status')
+                        ->label(fn($record) => $record->is_active ? 'Desactivar' : 'Activar')
+                        ->icon(fn($record) => $record->is_active ? 'heroicon-o-eye-slash' : 'heroicon-o-eye')
+                        ->color(fn($record) => $record->is_active ? 'danger' : 'success')
+                        ->action(function ($record) {
+                            $record->update(['is_active' => !$record->is_active]);
+                        })
+                        ->successNotificationTitle(fn($record) => $record->is_active ? 'Usuario desactivado' : 'Usuario activado')
+                        ->requiresConfirmation()
+                        ->modalHeading(fn($record) => $record->is_active ? 'Desactivar usuario' : 'Activar usuario')
+                        ->modalDescription(
+                            fn($record) => $record->is_active
+                                ? '¿Estás seguro de que deseas desactivar este usuario?'
+                                : '¿Estás seguro de que deseas activar este usuario?'
+                        )
+                        ->modalSubmitActionLabel(fn($record) => $record->is_active ? 'Desactivar' : 'Activar'),
+                ])
+                    ->label('Acciones')
+                    ->icon('heroicon-o-ellipsis-vertical')
+                    ->color('gray')
+                    ->button(),
             ])
             ->toolbarActions([
-                CreateAction::make()->modal(),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

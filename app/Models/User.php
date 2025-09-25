@@ -23,6 +23,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_active',
+        'profile_photo',
     ];
 
     /**
@@ -45,6 +47,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 
@@ -56,7 +59,28 @@ class User extends Authenticatable
         return Str::of($this->name)
             ->explode(' ')
             ->take(2)
-            ->map(fn ($word) => Str::substr($word, 0, 1))
+            ->map(fn($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    /**
+     * Get the profile photo URL or initials avatar
+     */
+    public function getProfilePhotoUrlAttribute(): string
+    {
+        if ($this->profile_photo) {
+            return asset('storage/' . $this->profile_photo);
+        }
+
+        $initials = $this->initials();
+        $colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'];
+        $color = $colors[abs(crc32($this->name)) % count($colors)];
+
+        $svg = '<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="20" fill="' . $color . '"/>
+            <text x="20" y="25" font-family="Arial, sans-serif" font-size="14" fill="white" text-anchor="middle">' . $initials . '</text>
+        </svg>';
+
+        return 'data:image/svg+xml;base64,' . base64_encode($svg);
     }
 }

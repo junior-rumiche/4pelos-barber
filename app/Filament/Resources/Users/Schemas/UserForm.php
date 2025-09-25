@@ -3,8 +3,10 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
 class UserForm
@@ -13,21 +15,27 @@ class UserForm
     {
         return $schema
             ->components([
+                FileUpload::make('profile_photo')
+                    ->label('Foto de perfil')
+                    ->image()
+                    ->directory('profile-photos')
+                    ->columnSpanFull(),
                 TextInput::make('name')
+                    ->label('Nombre')
                     ->required(),
                 TextInput::make('email')
-                    ->label('Email address')
+                    ->label('Correo')
                     ->email()
                     ->required(),
-                DateTimePicker::make('email_verified_at'),
+                Toggle::make('is_active')
+                    ->label('Activo')
+                    ->default(true),
+                DateTimePicker::make('email_verified_at')
+                    ->label('Verificado en'),
                 TextInput::make('password')
+                    ->label('Contraseña')
                     ->password()
                     ->required(),
-                Textarea::make('two_factor_secret')
-                    ->columnSpanFull(),
-                Textarea::make('two_factor_recovery_codes')
-                    ->columnSpanFull(),
-                DateTimePicker::make('two_factor_confirmed_at'),
             ]);
     }
 }
