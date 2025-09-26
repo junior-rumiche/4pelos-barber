@@ -54,12 +54,10 @@ class UsersTable
                 ActionGroup::make([
                     ViewAction::make()
                         ->label('Ver')
-                        ->icon('heroicon-o-eye')
-                        ->modal(),
+                        ->icon('heroicon-o-eye'),
                     EditAction::make()
                         ->label('Editar')
-                        ->icon('heroicon-o-pencil')
-                        ->modal(),
+                        ->icon('heroicon-o-pencil'),
                     Action::make('toggle_status')
                         ->label(fn($record) => $record->is_active ? 'Desactivar' : 'Activar')
                         ->icon(fn($record) => $record->is_active ? 'heroicon-o-eye-slash' : 'heroicon-o-eye')
