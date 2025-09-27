@@ -79,10 +79,6 @@ class OrdersTable
                     EditAction::make()
                         ->label('Editar')
                         ->icon('heroicon-o-pencil'),
-                    DeleteAction::make()
-                        ->label('Eliminar')
-                        ->icon('heroicon-o-trash')
-                        ->requiresConfirmation(),
                 ])
                     ->label('Acciones')
                     ->icon('heroicon-o-ellipsis-vertical')
