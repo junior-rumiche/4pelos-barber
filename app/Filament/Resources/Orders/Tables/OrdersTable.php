@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Orders\Tables;
 
 use App\Filament\Resources\Orders\OrderResource;
 use App\Models\Order;
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -14,6 +15,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class OrdersTable
 {
@@ -72,18 +74,43 @@ class OrdersTable
                     ->options(OrderResource::getStatusOptions()),
             ])
             ->recordActions([
+                ViewAction::make()
+                    ->label('Ver')
+                    ->icon('heroicon-o-eye'),
                 ActionGroup::make([
-                    ViewAction::make()
-                        ->label('Ver')
-                        ->icon('heroicon-o-eye'),
                     EditAction::make()
                         ->label('Editar')
                         ->icon('heroicon-o-pencil'),
+                    Action::make('mark-as-pending')
+                        ->label('Pasar a pendiente')
+                        ->icon('heroicon-o-arrow-uturn-left')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->visible(fn(Order $record): bool => (int) $record->status === Order::STATUS_IN_PROGRESS)
+                        ->action(function (Order $record): void {
+                            $record->markAsPending();
+                        })
+                        ->successNotificationTitle('Orden actualizada a pendiente de pago'),
+                    Action::make('mark-as-paid')
+                        ->label('Marcar como pagado')
+                        ->icon('heroicon-o-banknotes')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->visible(fn(Order $record): bool => (int) $record->status === Order::STATUS_PENDING)
+                        ->action(function (Order $record): void {
+                            if ($record->isPaid()) {
+                                return;
+                            }
+
+                            $record->markAsPaid(Auth::id());
+                        })
+                        ->successNotificationTitle('Orden marcada como pagada'),
                 ])
                     ->label('Acciones')
                     ->icon('heroicon-o-ellipsis-vertical')
                     ->color('gray')
-                    ->button(),
+                    ->button()
+                    ->visible(fn(Order $record): bool => ! $record->isPaid()),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

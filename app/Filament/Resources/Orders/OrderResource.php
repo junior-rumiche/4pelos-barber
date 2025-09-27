@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class OrderResource extends Resource
 {
@@ -67,5 +68,10 @@ class OrderResource extends Resource
             'create' => CreateOrder::route('/create'),
             'edit' => EditOrder::route('/{record}/edit'),
         ];
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return parent::canEdit($record) && ! $record->isPaid();
     }
 }

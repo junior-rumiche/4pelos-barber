@@ -77,6 +77,32 @@ class Order extends Model
         return (int) $this->status === self::STATUS_PAID;
     }
 
+    public function markAsPaid(?int $processedByUserId = null): void
+    {
+        if ($this->isPaid()) {
+            return;
+        }
+
+        $this->update([
+            'status' => self::STATUS_PAID,
+            'paid_at' => now(),
+            'payment_processed_by_user_id' => $processedByUserId,
+        ]);
+    }
+
+    public function markAsPending(): void
+    {
+        if ((int) $this->status === self::STATUS_PENDING) {
+            return;
+        }
+
+        $this->update([
+            'status' => self::STATUS_PENDING,
+            'paid_at' => null,
+            'payment_processed_by_user_id' => null,
+        ]);
+    }
+
     /**
      * Customer associated with the order.
      */

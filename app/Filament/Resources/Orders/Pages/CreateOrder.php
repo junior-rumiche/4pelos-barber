@@ -12,6 +12,21 @@ use Illuminate\Support\Facades\DB;
 
 class CreateOrder extends CreateRecord
 {
+    // Al guardar, redirigir al listado y quitar "guardar y registrar otro"
+    protected function getCreatedNotificationRedirectUrl(): ?string
+    {
+        return static::getResource()::getUrl('index');
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return static::getResource()::getUrl('index');
+    }
+
+    public static function booted(): void
+    {
+        static::disableCreateAnother();
+    }
     protected static string $resource = OrderResource::class;
 
     protected function mutateFormDataBeforeFill(array $data): array
