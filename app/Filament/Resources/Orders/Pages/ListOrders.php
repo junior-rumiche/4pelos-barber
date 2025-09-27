@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Orders\Pages;
 
 use App\Filament\Resources\Orders\OrderResource;
+use App\Filament\Resources\Orders\Widgets\MonthlyOrdersStats;
+use App\Filament\Resources\Orders\Widgets\TopOrderCreatorsThisMonth;
 use App\Models\Order;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
@@ -39,6 +41,14 @@ class ListOrders extends ListRecords
             'paid' => Tab::make('Pagado')
                 ->badge(fn(): int => Order::query()->where('status', Order::STATUS_PAID)->count())
                 ->modifyQueryUsing(fn(Builder $query): Builder => $query->where('status', Order::STATUS_PAID)),
+        ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            MonthlyOrdersStats::class,
+            TopOrderCreatorsThisMonth::class,
         ];
     }
 }
