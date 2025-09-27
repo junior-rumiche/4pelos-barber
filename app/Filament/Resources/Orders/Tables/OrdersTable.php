@@ -17,6 +17,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class OrdersTable
 {
@@ -106,7 +107,14 @@ class OrdersTable
                         ->icon('heroicon-o-arrow-uturn-left')
                         ->color('warning')
                         ->requiresConfirmation()
-                        ->visible(fn(Order $record): bool => (int) $record->status === Order::STATUS_IN_PROGRESS)
+                        ->visible(function (Order $record): bool {
+                            if ((int) $record->status !== Order::STATUS_IN_PROGRESS) {
+                                return false;
+                            }
+
+                            return Gate::allows(OrderResource::PERMISSION_MARK_AS_PENDING);
+                        })
+                        ->authorize(fn(Order $record): bool => Gate::allows(OrderResource::PERMISSION_MARK_AS_PENDING))
                         ->action(function (Order $record): void {
                             $record->markAsPending();
                         })
@@ -116,7 +124,14 @@ class OrdersTable
                         ->icon('heroicon-o-banknotes')
                         ->color('success')
                         ->requiresConfirmation()
-                        ->visible(fn(Order $record): bool => (int) $record->status === Order::STATUS_PENDING)
+                        ->visible(function (Order $record): bool {
+                            if ((int) $record->status !== Order::STATUS_PENDING) {
+                                return false;
+                            }
+
+                            return Gate::allows(OrderResource::PERMISSION_MARK_AS_PAID);
+                        })
+                        ->authorize(fn(Order $record): bool => Gate::allows(OrderResource::PERMISSION_MARK_AS_PAID))
                         ->action(function (Order $record): void {
                             if ($record->isPaid()) {
                                 return;

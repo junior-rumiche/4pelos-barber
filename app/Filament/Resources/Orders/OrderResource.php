@@ -20,6 +20,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderResource extends Resource
 {
+    public const PERMISSION_MARK_AS_PENDING = 'Orders:MarkAsPending';
+
+    public const PERMISSION_MARK_AS_PAID = 'Orders:MarkAsPaid';
+
     protected static ?string $model = Order::class;
 
     protected static ?string $modelLabel = 'Orden';

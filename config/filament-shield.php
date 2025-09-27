@@ -21,7 +21,7 @@ return [
             'pages' => true,
             'widgets' => true,
             'resources' => true,
-            'custom_permissions' => false,
+            'custom_permissions' => true,
         ],
     ],
 
@@ -120,8 +120,17 @@ return [
         'merge' => true,
         'generate' => true,
         'methods' => [
-            'viewAny', 'view', 'create', 'update', 'delete', 'restore',
-            'forceDelete', 'forceDeleteAny', 'restoreAny', 'replicate', 'reorder',
+            'viewAny',
+            'view',
+            'create',
+            'update',
+            'delete',
+            'restore',
+            'forceDelete',
+            'forceDeleteAny',
+            'restoreAny',
+            'replicate',
+            'reorder',
         ],
         'single_parameter_methods' => [
             'viewAny',
@@ -169,6 +178,10 @@ return [
                 'create',
                 'update',
                 'delete',
+            ],
+            \App\Filament\Resources\Orders\OrderResource::class => [
+                'MarkAsPending',
+                'MarkAsPaid',
             ],
         ],
         'exclude' => [
@@ -226,7 +239,10 @@ return [
     |
     */
 
-    'custom_permissions' => [],
+    'custom_permissions' => [
+        'Orders:MarkAsPending',
+        'Orders:MarkAsPaid',
+    ],
 
     /*
     |--------------------------------------------------------------------------
