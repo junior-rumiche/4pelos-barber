@@ -7,7 +7,6 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Service;
 use Filament\Actions\Action;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
@@ -59,24 +58,16 @@ class OrderForm
                             ->createOptionUsing(fn(array $data): int => Customer::create($data)->getKey()),
                         Select::make('status')
                             ->label('Estado')
-                            ->options(OrderResource::getStatusOptions())
+                            ->options(fn() => collect(OrderResource::getStatusOptions())
+                                ->only([Order::STATUS_PENDING, Order::STATUS_IN_PROGRESS])
+                                ->all())
                             ->default(Order::STATUS_IN_PROGRESS)
                             ->required()
                             ->native(false)
                             ->columnSpan([
                                 'md' => 2,
                             ])
-                            ->disabled(fn(string $operation): bool => $operation === 'create'),
-                        DateTimePicker::make('paid_at')
-                            ->label('Pagado en')
-                            ->native(false)
-                            ->seconds(false)
-                            ->maxDate(now())
-                            ->timezone(config('app.timezone'))
-                            ->columnSpan([
-                                'md' => 3,
-                            ])
-                            ->hidden(fn(string $operation): bool => $operation === 'create'),
+                            ->disabled(),
                     ]),
                 Repeater::make('items')
                     ->label('Servicios incluidos')

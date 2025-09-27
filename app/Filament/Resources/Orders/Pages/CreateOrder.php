@@ -72,15 +72,9 @@ class CreateOrder extends CreateRecord
         $data['items'] = $this->normalizeItems($data['items'] ?? []);
         $data['total_amount'] = $this->sumItems($data['items']);
 
-        $status = (int) ($data['status'] ?? Order::STATUS_PENDING);
-
-        if ($status === Order::STATUS_PAID) {
-            $data['paid_at'] ??= now();
-            $data['payment_processed_by_user_id'] ??= Auth::id();
-        } else {
-            $data['paid_at'] = null;
-            $data['payment_processed_by_user_id'] = null;
-        }
+        $data['status'] = Order::STATUS_IN_PROGRESS;
+        $data['paid_at'] = null;
+        $data['payment_processed_by_user_id'] = null;
 
         return $data;
     }

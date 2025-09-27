@@ -9,7 +9,6 @@ use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class EditOrder extends EditRecord
@@ -82,9 +81,14 @@ class EditOrder extends EditRecord
         $status = (int) ($data['status'] ?? Order::STATUS_PENDING);
 
         if ($status === Order::STATUS_PAID) {
-            $data['paid_at'] ??= $this->record->paid_at ?? now();
-            $data['payment_processed_by_user_id'] ??=
-                $this->record->payment_processed_by_user_id ?? Auth::id();
+            $status = $this->record->status;
+        }
+
+        $data['status'] = $status;
+
+        if ($status === Order::STATUS_PAID) {
+            $data['paid_at'] = $this->record->paid_at;
+            $data['payment_processed_by_user_id'] = $this->record->payment_processed_by_user_id;
         } else {
             $data['paid_at'] = null;
             $data['payment_processed_by_user_id'] = null;

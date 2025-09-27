@@ -12,7 +12,6 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -49,6 +48,11 @@ class OrdersTable
                     ->label('Total')
                     ->money('PEN')
                     ->sortable(),
+                TextColumn::make('created_at')
+                    ->label('Creado en')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('paid_at')
                     ->label('Pagado en')
                     ->dateTime('d/m/Y H:i')
@@ -56,23 +60,15 @@ class OrdersTable
                     ->sortable(),
                 TextColumn::make('createdBy.name')
                     ->label('Registrado por')
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('created_at')
-                    ->label('Creado en')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->badge()
+                    ->color('info'),
                 TextColumn::make('updated_at')
                     ->label('Actualizado en')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                SelectFilter::make('status')
-                    ->label('Estado')
-                    ->options(OrderResource::getStatusOptions()),
-            ])
+            ->filters([])
             ->recordActions([
                 ViewAction::make()
                     ->label('Ver')
