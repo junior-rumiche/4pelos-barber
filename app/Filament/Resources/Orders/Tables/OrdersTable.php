@@ -91,6 +91,12 @@ class OrdersTable
                 ViewAction::make()
                     ->label('Ver')
                     ->icon('heroicon-o-eye'),
+                Action::make('print')
+                    ->label('Imprimir')
+                    ->icon('heroicon-o-printer')
+                    ->color('gray')
+                    ->url(fn(Order $record): string => route('orders.print', $record))
+                    ->openUrlInNewTab(),
                 ActionGroup::make([
                     EditAction::make()
                         ->label('Editar')
