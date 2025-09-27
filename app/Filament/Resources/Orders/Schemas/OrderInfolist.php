@@ -3,8 +3,10 @@
 namespace App\Filament\Resources\Orders\Schemas;
 
 use App\Models\Order;
+use App\Models\OrderService;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ViewEntry;
 use Filament\Schemas\Schema;
 
 class OrderInfolist
@@ -48,35 +50,22 @@ class OrderInfolist
                     ->dateTime('d/m/Y H:i'),
                 RepeatableEntry::make('items')
                     ->label('Servicios incluidos')
+                    ->contained(false)
+                    ->grid(1)
+                    ->extraAttributes(['class' => 'space-y-4'])
                     ->schema([
-                        TextEntry::make('service.name')
-                            ->label('Servicio'),
-                        TextEntry::make('quantity')
-                            ->label('Cantidad')
-                            ->formatStateUsing(fn($state) => (int) max(1, (int) $state)),
-                        TextEntry::make('price_at_time_of_order')
-                            ->label('Precio unitario')
-                            ->money('PEN'),
-                        TextEntry::make('subtotal')
-                            ->label('Subtotal')
-                            ->state(function ($item): float {
-                                $price = $item['price_at_time_of_order'] ?? 0;
-                                $quantity = $item['quantity'] ?? 1;
-
-                                if (is_string($price)) {
-                                    $price = str_replace([' ', ','], ['', '.'], $price);
-                                }
-
-                                if (is_string($quantity)) {
-                                    $quantity = str_replace([' ', ','], ['', '.'], $quantity);
-                                }
-
-                                $price = is_numeric($price) ? (float) $price : 0.0;
-                                $quantity = is_numeric($quantity) ? (float) $quantity : 1.0;
-
-                                return $price * max(1, (int) round($quantity));
-                            })
-                            ->money('PEN'),
+                        ViewEntry::make('service-card')
+                            ->view('filament.orders.infolists.service-card')
+                            ->viewData(fn(OrderService $item): array => [
+                                'serviceName' => $item->service?->name ?? 'Servicio sin nombre',
+                                'quantity' => max(1, (int) $item->quantity),
+                                'unitPrice' => (float) $item->price_at_time_of_order,
+                                'subtotal' => round((float) $item->price_at_time_of_order * max(1, (int) $item->quantity), 2),
+                            ])
+                            ->extraEntryWrapperAttributes([
+                                'class' => 'fi-order-service-card',
+                            ])
+                            ->columnSpanFull(),
                     ])
                     ->columnSpanFull(),
             ]);
