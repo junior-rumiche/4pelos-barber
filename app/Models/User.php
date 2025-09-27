@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -49,6 +50,22 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * Orders created by the user.
+     */
+    public function createdOrders(): HasMany
+    {
+        return $this->hasMany(Order::class, 'created_by_user_id');
+    }
+
+    /**
+     * Orders where the user processed the payment.
+     */
+    public function paymentProcessedOrders(): HasMany
+    {
+        return $this->hasMany(Order::class, 'payment_processed_by_user_id');
     }
 
     /**
