@@ -8,10 +8,13 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class UsersTable
 {
@@ -58,6 +61,29 @@ class UsersTable
                     EditAction::make()
                         ->label('Editar')
                         ->icon('heroicon-o-pencil'),
+                    Action::make('change_password')
+                        ->label('Cambiar contraseña')
+                        ->icon('heroicon-o-key')
+                        ->form([
+                            TextInput::make('password')
+                                ->label('Nueva contraseña')
+                                ->password()
+                                ->revealable()
+                                ->required()
+                                ->rules(['confirmed', Password::defaults()]),
+                            TextInput::make('password_confirmation')
+                                ->label('Confirmar contraseña')
+                                ->password()
+                                ->revealable()
+                                ->required()
+                                ->dehydrated(false),
+                        ])
+                        ->action(function (array $data, $record): void {
+                            $record->update([
+                                'password' => Hash::make($data['password']),
+                            ]);
+                        })
+                        ->successNotificationTitle('Contraseña actualizada correctamente'),
                     Action::make('toggle_status')
                         ->label(fn($record) => $record->is_active ? 'Desactivar' : 'Activar')
                         ->icon(fn($record) => $record->is_active ? 'heroicon-o-eye-slash' : 'heroicon-o-eye')

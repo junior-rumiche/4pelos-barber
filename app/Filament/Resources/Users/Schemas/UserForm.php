@@ -8,6 +8,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Illuminate\Validation\Rules\Password;
 
 class UserForm
 {
@@ -43,7 +44,11 @@ class UserForm
                 TextInput::make('password')
                     ->label('Contraseña')
                     ->password()
-                    ->required(),
+                    ->revealable()
+                    ->required(fn(string $operation): bool => $operation === 'create')
+                    ->dehydrated(fn(?string $state): bool => filled($state))
+                    ->rules(['nullable', Password::defaults()])
+                    ->helperText('Déjala en blanco si no deseas cambiarla.'),
             ]);
     }
 }
