@@ -149,7 +149,9 @@ class OrdersTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn(): bool => Gate::allows('deleteAny', Order::class))
+                        ->authorize('deleteAny', Order::class),
                 ]),
             ]);
     }

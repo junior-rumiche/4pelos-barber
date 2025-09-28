@@ -11,7 +11,7 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 class OrderPolicy
 {
     use HandlesAuthorization;
-    
+
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:Order');
@@ -35,6 +35,11 @@ class OrderPolicy
     public function delete(AuthUser $authUser, Order $order): bool
     {
         return $authUser->can('Delete:Order');
+    }
+
+    public function deleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('DeleteAny:Order');
     }
 
     public function restore(AuthUser $authUser, Order $order): bool
@@ -66,5 +71,4 @@ class OrderPolicy
     {
         return $authUser->can('Reorder:Order');
     }
-
 }

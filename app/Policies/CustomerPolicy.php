@@ -11,7 +11,7 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 class CustomerPolicy
 {
     use HandlesAuthorization;
-    
+
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:Customer');
@@ -35,6 +35,11 @@ class CustomerPolicy
     public function delete(AuthUser $authUser, Customer $customer): bool
     {
         return $authUser->can('Delete:Customer');
+    }
+
+    public function deleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('DeleteAny:Customer');
     }
 
     public function restore(AuthUser $authUser, Customer $customer): bool
@@ -66,5 +71,4 @@ class CustomerPolicy
     {
         return $authUser->can('Reorder:Customer');
     }
-
 }

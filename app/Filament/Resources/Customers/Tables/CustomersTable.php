@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Customers\Tables;
 
+use App\Models\Customer;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -10,6 +11,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 
 class CustomersTable
 {
@@ -52,7 +54,9 @@ class CustomersTable
                     DeleteAction::make()
                         ->label('Eliminar')
                         ->icon('heroicon-o-trash')
-                        ->requiresConfirmation(),
+                        ->requiresConfirmation()
+                        ->visible(fn(Customer $record): bool => Gate::allows('delete', $record))
+                        ->authorize('delete'),
                 ])
                     ->label('Acciones')
                     ->icon('heroicon-o-ellipsis-vertical')
@@ -61,7 +65,9 @@ class CustomersTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn(): bool => Gate::allows('deleteAny', Customer::class))
+                        ->authorize('deleteAny', Customer::class),
                 ]),
             ]);
     }
