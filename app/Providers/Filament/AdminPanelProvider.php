@@ -46,6 +46,8 @@ class AdminPanelProvider extends PanelProvider
                 MonthlyOrdersStats::class,
                 TopOrderCreatorsThisMonth::class,
             ])
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('15s')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

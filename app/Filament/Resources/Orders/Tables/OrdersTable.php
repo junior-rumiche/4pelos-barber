@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Orders\Tables;
 
 use App\Filament\Resources\Orders\OrderResource;
 use App\Models\Order;
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -11,6 +12,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -103,7 +105,7 @@ class OrdersTable
                         ->label('Editar')
                         ->icon('heroicon-o-pencil'),
                     Action::make('mark-as-pending')
-                        ->label('Pasar a pendiente')
+                        ->label('Pasar a pendiente de pago')
                         ->icon('heroicon-o-arrow-uturn-left')
                         ->color('warning')
                         ->requiresConfirmation()
@@ -117,6 +119,30 @@ class OrdersTable
                         ->authorize(fn(Order $record): bool => Gate::allows(OrderResource::PERMISSION_MARK_AS_PENDING))
                         ->action(function (Order $record): void {
                             $record->markAsPending();
+
+                            $recipients = User::permission(OrderResource::PERMISSION_MARK_AS_PAID)
+                                ->where('is_active', true)
+                                ->get()
+                                ->unique('id')
+                                ->values();
+
+                            if ($recipients->isEmpty()) {
+                                return;
+                            }
+
+                            $orderCode = sprintf('#%04d', $record->id);
+                            $customerName = $record->customer?->full_name ?? 'Cliente desconocido';
+
+
+                            $notification = Notification::make()
+                                ->title('Orden pendiente de cobro')
+                                ->body("La orden {$orderCode} de {$customerName} está pendiente de pago.")
+                                ->warning()
+                                ->icon('heroicon-o-banknotes')
+                                ->persistent();
+
+                            $notification->sendToDatabase($recipients, isEventDispatched: true);
+                            $notification->broadcast($recipients);
                         })
                         ->successNotificationTitle('Orden actualizada a pendiente de pago'),
                     Action::make('mark-as-paid')
