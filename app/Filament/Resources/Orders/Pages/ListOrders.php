@@ -52,7 +52,7 @@ class ListOrders extends ListRecords
 
         return [
             MonthlyOrdersStats::class,
-            TopOrderCreatorsThisMonth::class,
+            // TopOrderCreatorsThisMonth::class,
         ];
     }
 
