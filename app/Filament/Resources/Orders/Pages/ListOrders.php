@@ -46,9 +46,24 @@ class ListOrders extends ListRecords
 
     protected function getHeaderWidgets(): array
     {
+        if ($this->isMobile()) {
+            return [];
+        }
+
         return [
             MonthlyOrdersStats::class,
             TopOrderCreatorsThisMonth::class,
         ];
+    }
+
+    /**
+     * Detecta si la petición proviene de un dispositivo móvil (User-Agent).
+     * Método simple y suficiente para ocultar widgets en mobile vs PC.
+     */
+    protected function isMobile(): bool
+    {
+        $ua = request()->header('User-Agent', '');
+
+        return (bool) preg_match('/Mobile|Android|Silk|Kindle|BlackBerry|Opera Mini|Opera Mobi|iPhone|iPad|Windows Phone/i', $ua);
     }
 }
