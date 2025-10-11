@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -39,16 +38,15 @@ class UserForm
                     ->searchable()
                     ->helperText('Selecciona uno o más roles a asignar al usuario.')
                     ->columnSpanFull(),
-                DateTimePicker::make('email_verified_at')
-                    ->label('Verificado en'),
                 TextInput::make('password')
                     ->label('Contraseña')
                     ->password()
                     ->revealable()
+                    ->hiddenOn('edit')
                     ->required(fn(string $operation): bool => $operation === 'create')
                     ->dehydrated(fn(?string $state): bool => filled($state))
                     ->rules(['nullable', Password::defaults()])
-                    ->helperText('Déjala en blanco si no deseas cambiarla.'),
+                    ->helperText('Obligatoria al crear el usuario.'),
             ]);
     }
 }
