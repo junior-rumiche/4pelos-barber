@@ -166,6 +166,16 @@ class OrdersTable
                             $record->markAsPaid(Auth::id());
                         })
                         ->successNotificationTitle('Orden marcada como pagada'),
+                    DeleteAction::make()
+                        ->label('Eliminar')
+                        ->icon('heroicon-o-trash')
+                        ->requiresConfirmation()
+                        ->modalHeading(fn(Order $record): string => 'Eliminar orden ' . sprintf('#%04d', $record->id))
+                        ->modalDescription(fn(Order $record): string => '¿Estás seguro de que deseas eliminar la orden ' . sprintf('#%04d', $record->id) . ' de ' . ($record->customer?->full_name ?? 'cliente desconocido') . '? Esta acción no se puede deshacer.')
+                        ->modalSubmitActionLabel('Eliminar')
+                        ->modalCancelActionLabel('Cancelar')
+                        ->visible(fn(Order $record): bool => Gate::allows('delete', $record))
+                        ->authorize('delete'),
                 ])
                     ->label('Acciones')
                     ->icon('heroicon-o-ellipsis-vertical')
